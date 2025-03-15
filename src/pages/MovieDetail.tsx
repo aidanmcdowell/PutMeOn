@@ -10,9 +10,9 @@ import {
   Play, 
   ChevronLeft, 
   AlertTriangle,
-  ExternalLink
+  Sparkles
 } from 'lucide-react';
-import { getMovieDetails, getEnhancedSimilarMovies, getSceneHighlights } from '@/lib/api';
+import { getMovieDetails, getEnhancedSimilarMovies, getAIEnhancedSceneHighlights } from '@/lib/api';
 import { Movie, SceneHighlight } from '@/lib/types';
 import Layout from '@/components/Layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -30,6 +30,7 @@ const MovieDetail = () => {
   const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
   const [scenes, setScenes] = useState<SceneHighlight[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isScenesLoading, setIsScenesLoading] = useState(false);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [currentVideo, setCurrentVideo] = useState('');
   const [currentVideoTitle, setCurrentVideoTitle] = useState('');
@@ -51,9 +52,25 @@ const MovieDetail = () => {
         const enhancedSimilar = await getEnhancedSimilarMovies(movieId);
         setSimilarMovies(enhancedSimilar.slice(0, 8));
         
-        // Get scene highlights
-        const highlightScenes = getSceneHighlights(movieId);
-        setScenes(highlightScenes);
+        // Get AI-enhanced scene highlights
+        setIsScenesLoading(true);
+        try {
+          const aiScenes = await getAIEnhancedSceneHighlights(
+            movieId, 
+            movieData.title, 
+            movieData.overview
+          );
+          setScenes(aiScenes);
+        } catch (error) {
+          console.error('Error getting AI scene highlights:', error);
+          toast.error('Could not analyze movie scenes');
+          
+          // Fallback to regular scene highlights
+          const highlightScenes = getSceneHighlights(movieId);
+          setScenes(highlightScenes);
+        } finally {
+          setIsScenesLoading(false);
+        }
       } catch (error) {
         console.error('Error fetching movie data:', error);
         toast.error('Failed to load movie details');
@@ -290,13 +307,23 @@ const MovieDetail = () => {
         <div className="py-8">
           <Tabs defaultValue="scenes" className="w-full">
             <TabsList className="mb-6">
-              <TabsTrigger value="scenes">Significant Scenes</TabsTrigger>
+              <TabsTrigger value="scenes" className="flex items-center gap-1">
+                AI Selected Scenes 
+                <Sparkles size={12} className="text-brand-purple ml-1" />
+              </TabsTrigger>
               <TabsTrigger value="similar">Similar Movies</TabsTrigger>
               <TabsTrigger value="cast">Cast & Crew</TabsTrigger>
             </TabsList>
             
             <TabsContent value="scenes" className="animate-fade-in">
-              {scenes.length > 0 ? (
+              {isScenesLoading ? (
+                <div className="flex items-center justify-center p-20">
+                  <div className="flex flex-col items-center">
+                    <div className="h-12 w-12 rounded-full border-4 border-brand-purple/30 border-t-brand-purple animate-spin mb-4" />
+                    <p className="text-muted-foreground">AI is analyzing the most captivating scenes...</p>
+                  </div>
+                </div>
+              ) : scenes.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {scenes.map((scene) => (
                     <SceneHighlightCard 

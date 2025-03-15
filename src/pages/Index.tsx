@@ -6,7 +6,7 @@ import {
   getPopularMovies, 
   getUpcomingMovies, 
   getMovieDetails,
-  getSceneHighlights
+  getAIEnhancedSceneHighlights
 } from '@/lib/api';
 import Layout from '@/components/Layout';
 import FeaturedMovie from '@/components/featured-movie';
@@ -27,6 +27,7 @@ const Index = () => {
   const [currentVideo, setCurrentVideo] = useState('');
   const [currentVideoTitle, setCurrentVideoTitle] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isHighlightsLoading, setIsHighlightsLoading] = useState(false);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -54,9 +55,21 @@ const Index = () => {
           const highlightMovieDetails = await getMovieDetails(trending[highlightIndex].id);
           setHighlightMovie(highlightMovieDetails);
           
-          // Get scene highlights for this movie
-          const scenes = getSceneHighlights(trending[highlightIndex].id);
-          setHighlights(scenes);
+          // Get AI-enhanced scene highlights for this movie
+          setIsHighlightsLoading(true);
+          try {
+            const aiScenes = await getAIEnhancedSceneHighlights(
+              trending[highlightIndex].id, 
+              trending[highlightIndex].title, 
+              trending[highlightIndex].overview
+            );
+            setHighlights(aiScenes);
+          } catch (error) {
+            console.error('Error getting AI scene highlights:', error);
+            toast.error('Could not analyze movie scenes');
+          } finally {
+            setIsHighlightsLoading(false);
+          }
         }
       } catch (error) {
         console.error('Error fetching movies:', error);
@@ -122,12 +135,15 @@ const Index = () => {
       
       <div className="container mx-auto px-4">
         {/* Scene Highlights Section */}
-        {highlightMovie && highlights.length > 0 && (
+        {highlightMovie && (
           <div className="py-10">
             <div className="flex flex-col md:flex-row gap-6">
               {/* Left Side - Movie Info */}
               <div className="md:w-1/3">
-                <h2 className="text-2xl font-medium mb-4">Significant Scenes</h2>
+                <h2 className="text-2xl font-medium mb-4">
+                  Most Captivating Scenes
+                  <span className="ml-2 text-sm text-brand-purple">(AI Selected)</span>
+                </h2>
                 <div className="flex gap-4 mb-4">
                   <div className="w-24 h-36 rounded-lg overflow-hidden flex-shrink-0">
                     {highlightMovie.poster_path ? (
@@ -155,13 +171,26 @@ const Index = () => {
               
               {/* Right Side - Scene Highlights */}
               <div className="md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4">
-                {highlights.slice(0, 4).map((scene) => (
-                  <SceneHighlightCard 
-                    key={scene.id} 
-                    scene={scene}
-                    onPlay={handlePlayScene}
-                  />
-                ))}
+                {isHighlightsLoading ? (
+                  <div className="col-span-2 flex items-center justify-center p-10">
+                    <div className="flex flex-col items-center">
+                      <div className="h-10 w-10 rounded-full border-4 border-brand-purple/30 border-t-brand-purple animate-spin mb-3" />
+                      <p className="text-sm text-muted-foreground">AI is analyzing the most interesting scenes...</p>
+                    </div>
+                  </div>
+                ) : highlights.length > 0 ? (
+                  highlights.slice(0, 4).map((scene) => (
+                    <SceneHighlightCard 
+                      key={scene.id} 
+                      scene={scene}
+                      onPlay={handlePlayScene}
+                    />
+                  ))
+                ) : (
+                  <div className="col-span-2 p-6 text-center text-muted-foreground">
+                    No scene highlights available for this movie
+                  </div>
+                )}
               </div>
             </div>
           </div>

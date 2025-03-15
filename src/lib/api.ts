@@ -1,5 +1,5 @@
-
 import { Movie, SceneHighlight } from './types';
+import { generateAISceneHighlights } from './movie-ai-service';
 
 const API_KEY = 'e160f716a47db916b59e84e44f943984';
 const BASE_URL = 'https://api.themoviedb.org/3';
@@ -93,6 +93,15 @@ export async function getEnhancedSimilarMovies(movieId: number) {
   
   // Sort by relevance score
   return similarMovies.sort((a: any, b: any) => b.relevance - a.relevance);
+}
+
+// Get scene highlights with AI enhancement
+export async function getAIEnhancedSceneHighlights(movieId: number, movieTitle: string, overview: string): Promise<SceneHighlight[]> {
+  // First get the mock scenes
+  const mockScenes = getSceneHighlights(movieId);
+  
+  // Then enhance them with AI analysis
+  return generateAISceneHighlights(movieTitle, overview, mockScenes);
 }
 
 // Mock function to get scene highlights (in a real app, this would come from a backend API)
