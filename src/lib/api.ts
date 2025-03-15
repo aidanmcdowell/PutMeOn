@@ -1,3 +1,4 @@
+
 import { Movie, SceneHighlight } from './types';
 import { generateAISceneHighlights } from './movie-ai-service';
 
@@ -157,6 +158,55 @@ export function getSceneHighlights(movieId: number): SceneHighlight[] {
         type: 'plot',
         isSpoiler: true,
         videoId: 'VC1_tdnZq1A',
+      }
+    ],
+    // For The Shawshank Redemption
+    278: [
+      {
+        id: '1',
+        title: 'Rooftop Scene',
+        description: 'Andy secures cold beers for his fellow inmates while tarring the prison roof, giving them a brief taste of freedom.',
+        type: 'emotional',
+        videoId: 'YdB1HMCldJY'
+      },
+      {
+        id: '2',
+        title: 'Opera Scene',
+        description: 'Andy locks himself in the warden\'s office and plays Mozart over the prison PA system, giving all inmates a moment of beauty.',
+        type: 'emotional',
+        videoId: 'qzuM2XTnBSA'
+      },
+      {
+        id: '3',
+        title: 'Escape Revelation',
+        description: 'Red discovers how Andy escaped from Shawshank after being imprisoned for 19 years.',
+        type: 'plot',
+        isSpoiler: true,
+        videoId: 'SheQxSZHaIY'
+      }
+    ],
+    // For The Dark Knight
+    155: [
+      {
+        id: '1',
+        title: 'Bank Robbery',
+        description: 'The Joker orchestrates an elaborate bank heist where his accomplices unknowingly eliminate each other.',
+        type: 'action',
+        videoId: 'CRBWMZJV49k'
+      },
+      {
+        id: '2',
+        title: 'Interrogation Scene',
+        description: 'Batman interrogates the Joker in the police station, revealing the Joker\'s chaotic philosophy.',
+        type: 'plot',
+        videoId: '8_nLAQ5ph1w'
+      },
+      {
+        id: '3',
+        title: 'Hospital Explosion',
+        description: 'The Joker, dressed as a nurse, visits Two-Face in the hospital before detonating explosives throughout the building.',
+        type: 'action',
+        videoId: 'pfmkymMlZZU'
       }
     ],
     // Default scenes for any movie without specific scenes

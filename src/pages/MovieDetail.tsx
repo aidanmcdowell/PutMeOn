@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -12,7 +11,7 @@ import {
   AlertTriangle,
   Sparkles
 } from 'lucide-react';
-import { getMovieDetails, getEnhancedSimilarMovies, getAIEnhancedSceneHighlights } from '@/lib/api';
+import { getMovieDetails, getEnhancedSimilarMovies, getAIEnhancedSceneHighlights, getSceneHighlights } from '@/lib/api';
 import { Movie, SceneHighlight } from '@/lib/types';
 import Layout from '@/components/Layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -66,8 +65,8 @@ const MovieDetail = () => {
           toast.error('Could not analyze movie scenes');
           
           // Fallback to regular scene highlights
-          const highlightScenes = getSceneHighlights(movieId);
-          setScenes(highlightScenes);
+          const fallbackScenes = getSceneHighlights(movieId);
+          setScenes(fallbackScenes);
         } finally {
           setIsScenesLoading(false);
         }
